@@ -1,6 +1,10 @@
 import os
 import time
 
+BASE_ROOT = os.path.dirname(os.path.abspath(__file__))
+# 读函数文件位置
+read_data_file = os.path.join(BASE_ROOT, "read_data.json")
+
 """
 1、python中都是从0开始计数的
 2、source_table:源数据表
