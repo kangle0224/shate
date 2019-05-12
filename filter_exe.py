@@ -128,7 +128,10 @@ class ExcelHelper(object):
                         # 给每个sheet中插入数据
                         for item in data[depart_id]:
                             # 顺序生成序号
-                            item.insert(0, nid+1+data[depart_id].index(item))
+                            if nid != "序号":
+                                item.insert(0, nid+1+data[depart_id].index(item))
+                            else:
+                                item.insert(0, 1+data[depart_id].index(item))
                             # 插入数据
                             wtb.append(item)
                     else:
