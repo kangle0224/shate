@@ -2,7 +2,6 @@ import os
 import conf
 import xlrd
 from openpyxl import load_workbook
-from utils import write_json
 import traceback
 
 
