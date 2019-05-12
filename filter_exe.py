@@ -157,6 +157,7 @@ if __name__ == "__main__":
     """
     source_table = conf.source_table
     source_sheet = conf.source_sheet
+    title_rowx = conf.title_rowx
     target_table_path = conf.target_table_path
     departments = conf.departments
     filter_date = conf.filter_date
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     try:
         eh = ExcelHelper(source_table=source_table,
                          source_sheet=source_sheet,
-                         title_rowx=1,
+                         title_rowx=title_rowx,
                          filter_date=filter_date,
                          filter_department=departments,
                          target_table_path=target_table_path
