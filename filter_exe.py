@@ -58,7 +58,7 @@ class ExcelHelper(object):
                 row_list.append(date)
                 # end
 
-                # 过滤时间
+                # 将所有数据放到department_data这个字典中
                 department = rtb.row_values(row)[11]
                 if department != "":
                     department_date = department + "@" + date
@@ -66,6 +66,7 @@ class ExcelHelper(object):
                         department_data[department_date] = []
                     department_data[department_date].append(row_list)
 
+            # 使用部门和日期进行过滤数据
             filter_data = {}
             for k, v in department_data.items():
                 for depart in self.filter_department:
