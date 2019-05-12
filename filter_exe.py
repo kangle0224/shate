@@ -74,7 +74,6 @@ class ExcelHelper(object):
                     if k == str(depart) + "@" + str(self.filter_date):
                         filter_data[k.split("@")[0]] = v
 
-            write_json(conf.read_data_file, filter_data)
             return filter_data
         except Exception as e:
             print(traceback.format_exc())
