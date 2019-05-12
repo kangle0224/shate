@@ -2,9 +2,6 @@ import os
 import conf
 import xlrd
 from openpyxl import load_workbook
-from xlutils.copy import copy
-from copy import deepcopy
-import time
 import traceback
 
 
@@ -56,7 +53,7 @@ class ExcelHelper(object):
                 # plan_num
                 row_list.append(rtb.row_values(row)[14])
                 # note2
-                row_list.append(rtb.row_values(row)[16] if rtb.row_values(row)[16] else "note2")
+                row_list.append(rtb.row_values(row)[16] if rtb.row_values(row)[16] else "")
                 # date
                 row_list.append(date)
                 # end
@@ -111,7 +108,6 @@ class ExcelHelper(object):
                         # 使用openpyxl打开sheet
                         wtb = new_rt[depart]
 
-                        fin_data = []
                         old_data = []
                         # 获取老数据
                         for i in range(self.title_rowx + 2, rtb_nrows):
@@ -163,7 +159,6 @@ if __name__ == "__main__":
     source_sheet = conf.source_sheet
     target_table_path = conf.target_table_path
     departments = conf.departments
-    # filter_date = time.strftime("%Y/%m/%d")
     filter_date = conf.filter_date
     # -----------------------------------------------
     try:
