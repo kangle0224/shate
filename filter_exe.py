@@ -1,6 +1,7 @@
 import os
+import conf
 import xlrd
-import xlwt
+from openpyxl import load_workbook
 from xlutils.copy import copy
 from copy import deepcopy
 import time
@@ -63,7 +64,7 @@ class ExcelHelper(object):
                 # 过滤时间
                 department = rtb.row_values(row)[11]
                 if department != "":
-                    department_date = department+"@"+date
+                    department_date = department + "@" + date
                     if department_date not in department_data:
                         department_data[department_date] = []
                     department_data[department_date].append(row_list)
@@ -71,9 +72,8 @@ class ExcelHelper(object):
             filter_data = {}
             for k, v in department_data.items():
                 for depart in self.filter_department:
-                    if k == str(depart)+"@"+str(self.filter_date):
+                    if k == str(depart) + "@" + str(self.filter_date):
                         filter_data[k.split("@")[0]] = v
-            print(filter_data)
             return filter_data
         except Exception as e:
             print(traceback.format_exc())
@@ -87,71 +87,56 @@ class ExcelHelper(object):
             # 创建目标文件路径，如果不存在，就新建
             if not os.path.exists(os.path.dirname(self.target_table_path)):
                 os.makedirs(self.target_table_path)
-            # 查看文件是否存在
+            # 查看文件是否存在, 如果不存在就打印不存在信息
             file_name = self.target_table_path
+            print("data is %s" % data)
             if os.path.exists(file_name):
                 # 文件存在
                 # 判断sheet是否存在
                 rt = xlrd.open_workbook(file_name)
-                wt = copy(rt)
                 sheets = rt.sheet_names()
-                filter_department_sheet = ["sino-"+x for x in data.keys()]
+                # 使用openpyxl打开目标工作簿，目的是保存为xlsx格式的
+                new_rt = load_workbook(file_name)
+                filter_department_sheet = ["sino-" + x for x in data.keys()]
                 for depart in filter_department_sheet:
                     if depart in sheets:
                         # 部门id： 19
                         depart_id = depart.split("-")[1]
+                        # 获取目标sheet的句柄
                         rtb = rt.sheet_by_name(depart)
                         # 获取原表格行数
                         rtb_nrows = rtb.nrows
-                        nid = rtb.row_values(rtb_nrows-1)[0]
-                        wtb = wt.get_sheet(sheets.index(depart))
+                        # 获取原表格最后一行的id
+                        nid = rtb.row_values(rtb_nrows - 1)[0]
+                        # 使用openpyxl打开sheet
+                        wtb = new_rt[depart]
 
                         fin_data = []
+                        old_data = []
                         # 获取老数据
                         for i in range(self.title_rowx + 2, rtb_nrows):
-                            fin_data.append(rtb.row_values(i)[1:])
-                        # 删除过滤数据
-                        cp_data = deepcopy(fin_data)
-                        for i in cp_data:
-                            if self.filter_date == i[9]:
-                                fin_data.remove(i)
+                            old_data.append(rtb.row_values(i)[1:])
+                        print("depart is %s" % depart)
+                        print("old_data is %s, len is %s" % (old_data, len(old_data)) )
+                        print(data[depart_id])
 
-                        fin_data.extend(data[depart_id])
+                        # 循环旧数据，删除新数据中重复的数据
+                        for item in old_data:
+                            if item in data[depart_id]:
+                                data[depart_id].remove(item)
 
-                        # 增加新数据
-                        cp_finnal_data = deepcopy(fin_data)
-                        for j, k in enumerate(cp_finnal_data):
-                            fin_data[j].insert(0, j+1)
-
-                        for i in range(len(fin_data)):
-                            # print(fin_data[i])
-                            for j in range(len(fin_data[i])):
-                                wtb.write(self.title_rowx+i+1, j, fin_data[i][j])
+                        # 给每个sheet中插入数据
+                        for item in data[depart_id]:
+                            # 顺序生成序号
+                            item.insert(0, nid+1+data[depart_id].index(item))
+                            # 插入数据
+                            wtb.append(item)
                     else:
-                        print("no such sheet,please add.")
-                wt.save(file_name)
-
-                        # else:
-            #     # 文件不存在
-            #     # 增加表头
-            #     theads = ["序号", "大类", "名称", "规格型号", "单位", "数量", "单价RMB", "备注1", "计划明细号", "备注2", "日期"]
-            #     wt = xlwt.Workbook()
-            #     wtb = wt.add_sheet(self.target_sheet)
-            #     wtb.write_merge(0, 0, 0, 9, "沙特公司基层单位领料确认单")
-            #     wtb.write_merge(1, 1, 0, 4, "单位： %s %s" % (self.filter_department, data[0][8]))
-            #     wtb.write_merge(1, 1, 5, 9, "ZPEBINT/JL-SA-YMD-005-2014")
-            #     for i in range(len(theads)):
-            #         wtb.write(2, i, theads[i])
-            #     # 增加数据
-            #     for i in range(len(data)):
-            #         # 增加序号
-            #         wtb.write(i+3, 0, i+1)
-            #         for j in range(len(data[i])):
-            #             # 增加真实数据
-            #             wtb.write(i+3, j+1, data[i][j])
-            #
-            #     # 保存文件
-            #     wt.save(file_name)
+                        print("no such sheet: %s,please add." % depart)
+                # 保存文件
+                new_rt.save(file_name)
+            else:
+                print("文件不存在: %s" % file_name)
         except Exception as e:
             print(traceback.format_exc())
 
@@ -159,7 +144,6 @@ class ExcelHelper(object):
 if __name__ == "__main__":
     """
     1、python中都是从0开始计数的
-    
     2、source_table:源数据表
     3、source_sheet:源数据表中的sheet名字
     4、title_rowx:源数据表中标题所在的行数
@@ -172,12 +156,12 @@ if __name__ == "__main__":
     """
     需修改的参数
     """
-    source_table = r"E:\test1\2019\A表-收料记录.xlsx"
-    source_sheet = "Sheet1"
-    target_table_path = r"E:\test1\2019\4月境外料汇总.xlsx"
-    departments = [16, 19]
+    source_table = conf.source_table
+    source_sheet = conf.source_sheet
+    target_table_path = conf.target_table_path
+    departments = conf.departments
     # filter_date = time.strftime("%Y/%m/%d")
-    filter_date = "2019/04/25"
+    filter_date = conf.filter_date
     # -----------------------------------------------
     try:
         eh = ExcelHelper(source_table=source_table,
@@ -186,10 +170,10 @@ if __name__ == "__main__":
                          filter_date=filter_date,
                          filter_department=departments,
                          target_table_path=target_table_path
-        )
+                         )
         data = eh.read_data()
         if len(data) == 0:
-            print("今日[%s]无数据，不需要生成." % filter_date )
+            print("今日[%s]无数据，不需要生成." % filter_date)
         else:
             eh.write_data(data)
             print("---   今日[%s]数据生成完成." % filter_date)
