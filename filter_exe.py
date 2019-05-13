@@ -117,12 +117,13 @@ class ExcelHelper(object):
                             old_data.append(rtb.row_values(i)[1:])
                         print("depart is %s" % depart)
                         print("old_data is %s, len is %s" % (old_data, len(old_data)) )
-                        print(data[depart_id])
 
                         # 循环旧数据，删除新数据中重复的数据
                         for item in old_data:
                             if item in data[depart_id]:
                                 data[depart_id].remove(item)
+                        # 打印最终各队新增的数据
+                        print("%s队的新增数据是: %s" % (depart_id, data[depart_id]))
 
                         # 给每个sheet中插入数据
                         for item in data[depart_id]:

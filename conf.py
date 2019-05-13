@@ -16,13 +16,13 @@ read_data_file = os.path.join(BASE_ROOT, "read_data.json")
 8、target_sheet:目标数据保存sheet
 """
 # 数据源工作簿
-source_table = r"E:\test\bb\A表-收料记录.xlsx"
+source_table = r"E:\test1\2019\A表-收料记录.xlsx"
 # 数据源工作表
 source_sheet = "Sheet1"
 # 标题所在行
 title_rowx = 1
 # 目标工作簿
-target_table_path = r"E:\test\bb\4月境外料汇总.xlsx"
+target_table_path = r"E:\test1\2019\4月境外料汇总.xlsx"
 # 过滤部门
 departments = [16, 19]
 # 过滤时间
