@@ -49,7 +49,7 @@ class ExcelHelper(object):
                 # price_rmb
                 row_list.append(round(float(rtb.row_values(row)[10]), 2))
                 # note1
-                row_list.append(rtb.row_values(row)[12] if rtb.row_values(row)[12] else "note1")
+                row_list.append(rtb.row_values(row)[12] if rtb.row_values(row)[12] else "")
                 # plan_num
                 row_list.append(rtb.row_values(row)[14])
                 # note2
@@ -97,6 +97,7 @@ class ExcelHelper(object):
                 # 使用openpyxl打开目标工作簿，目的是保存为xlsx格式的
                 new_rt = load_workbook(file_name)
                 filter_department_sheet = ["sino-" + x for x in data.keys()]
+                sum_data = {}
                 for depart in filter_department_sheet:
                     if depart in sheets:
                         # 部门id： 19
@@ -132,10 +133,12 @@ class ExcelHelper(object):
                                 item.insert(0, 1+data[depart_id].index(item))
                             # 插入数据
                             wtb.append(item)
+                            sum_data[depart_id] = len(data[depart_id])
                     else:
                         print("no such sheet: %s,please add." % depart)
                 # 保存文件
                 new_rt.save(file_name)
+                print("各队新加数据如下: %s" % sum_data)
             else:
                 print("文件不存在: %s" % file_name)
         except Exception as e:
