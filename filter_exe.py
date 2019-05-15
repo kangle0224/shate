@@ -140,7 +140,17 @@ class ExcelHelper(object):
                         print("no such sheet: %s,please add." % depart)
                 # 保存文件
                 new_rt.save(file_name)
-                print("各队新加数据如下: %s" % sum_data)
+                # 新增数据汇总排序
+                key_list = []
+                sum_data_order = {}
+                for key in sum_data.keys():
+                    key_list.append(key)
+
+                key_list.sort()
+                for key in key_list:
+                    sum_data_order[key] = sum_data[key]
+
+                print("各队新加数据如下: %s" % sum_data_order)
             else:
                 print("文件不存在: %s" % file_name)
         except Exception as e:
